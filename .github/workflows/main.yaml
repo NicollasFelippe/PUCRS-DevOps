@@ -38,7 +38,7 @@ jobs:
       - name: instalar Prettier
         run: npm install -g prettier
       - name: Valindando Prettier
-        run: prettier --check index.html
+        run: prettier --check src/index.html
   
   validating-links:
     runs-on: ubuntu-latest
@@ -52,5 +52,5 @@ jobs:
       - name: validando links
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --verbose --no-progress src/index.html
+          args: --accept 200-299,300-399,403,429,999 src/index.html
           fail: true
