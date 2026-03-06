@@ -24,7 +24,7 @@ jobs:
       - name: instalar HTMLHint
         run: npm install -g htmlhint
       - name: Validando htmlhin
-        run: htmlhint index.html
+        run: htmlhint src/index.html
   
   validating-prettier:
     runs-on: ubuntu-latest
@@ -52,4 +52,5 @@ jobs:
       - name: validando links
         uses: lycheeverse/lychee-action@v2
         with:
-          args: index.html
+          args: --verbose --no-progress src/index.html
+          fail: true
