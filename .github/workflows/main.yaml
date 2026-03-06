@@ -1,0 +1,12 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest # Sistema operacional
+    steps:
+      - uses: actions/checkout@v3 # Baixa o código
+      - name: Executar Script
+        run: echo "Configurado com sucesso!"
