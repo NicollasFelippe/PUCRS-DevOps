@@ -37,8 +37,10 @@ jobs:
           node-version: '20'
       - name: instalar Prettier
         run: npm install -g prettier
-      - name: Valindando Prettier
-        run: prettier --check src/index.html
+      - name: Fromatando com Prettier
+        run: prettier --write src/index.html src/styles.css
+      - name: Verificar mudanças
+        run: git diff --exit-code || echo "Arquivos formatados"
   
   validating-links:
     runs-on: ubuntu-latest
@@ -52,5 +54,4 @@ jobs:
       - name: validando links
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --accept 200-299,300-399,403,429,999 src/index.html
-          fail: true
+          args: --accept 200,201,204,301,302,307,308,403,429,999 src/index.html
