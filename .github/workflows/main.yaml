@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest # Sistema operacional
     steps:
-      - uses: actions/checkout@v3 # Baixa o código
+      - uses: actions/checkout@v4 # Baixa o código
       - name: Executar Script
         run: echo "Configurado com sucesso!"
         
@@ -16,30 +16,27 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: configurar node.js
         uses: actions/setup-node@v4
         with: 
           node-version: '20'
-      
       - name: instalar HTMLHint
         run: npm install -g htmlhint
-
       - name: Validando htmlhin
         run: htmlhint index.html
+  
   validating-prettier:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: configurar node.js
         uses: actions/setup-node@v4
         with: 
           node-version: '20'
-
       - name: instalar Prettier
-        run: npm install -g Prettier
-
+        run: npm install -g prettier
       - name: Valindando Prettier
         run: prettier --check index.html
   
@@ -47,14 +44,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: configurar node.js
         uses: actions/setup-node@v4
         with: 
           node-version: '20'
-      
-      - name: instalar Lychee
-        run: npm install -g lychee
-
       - name: validando links
-        run: lychee index.html
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: index.html
