@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Infraestrutura para site estático no S3'
+
+Resources:
+  # 1. Criação do Bucket S3
+  MeuBucketDeSite:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: nicollas-santos-pucrs-devops
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        IndexDocument: index.html
+
+  # 2. Regra de Permissão (Bucket Policy)
+  PermissaoDeLeituraPublica:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MeuBucketDeSite
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub 'arn:aws:s3:::${MeuBucketDeSite}/*'
+
+Outputs:
+  WebsiteURL:
+    Description: 'URL do site estático'
+    Value: !GetAtt MeuBucketDeSite.WebsiteURL
+    Export:
+      Name: !Sub '${AWS::StackName}-WebsiteURL'
+
+  BucketName:
+    Description: 'Nome do bucket S3'
+    Value: !Ref MeuBucketDeSite
