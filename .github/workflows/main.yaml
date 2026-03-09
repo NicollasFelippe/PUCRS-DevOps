@@ -37,20 +37,14 @@ jobs:
           node-version: '20'
       - name: instalar Prettier
         run: npm install -g prettier
-      - name: Fromatando com Prettier
-        run: prettier --write src/index.html src/styles.css
-      - name: Verificar mudanças
-        run: git diff --exit-code || echo "Arquivos formatados"
-  
+      - name: Validando formato
+        run: prettier --check src/index.html src/styles.css
+
   validating-links:
     runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - name: configurar node.js
-        uses: actions/setup-node@v4
-        with: 
-          node-version: '20'
       - name: validando links
         uses: lycheeverse/lychee-action@v2
         with:
@@ -66,8 +60,20 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
-      - name: Deploy S3
-        run: aws s3 sync src/ s3://nicollas-santos-pucrs-devops/ --delete
+      
+      - name: Infraestrutura cloudFormation
+        run: |
+          aws cloudformation deploy \
+          --template-file template.yaml \
+          --stack-name pilha-site-devops \
+          --no-fail-on-empty-changeset
+      
+      - name: Deploy do site no S3
+        run: |
+          aws s3 sync src/ s3://nicollas-santos-pucrs-devops/ \
+          --delete \
+          --exclude ".git/*" \
+          --exclude ".github/*"
