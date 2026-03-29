@@ -18,7 +18,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: t2.micro # Instância elegível no AWS Academy
-      # Pega a versão mais atualizada e segura do Amazon Linux 2023 automaticamente
+      # Pega a versão mais atualizada do Amazon Linux
       ImageId: '{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64}}'
       SecurityGroupIds:
         - !Ref AcessoWebSG
