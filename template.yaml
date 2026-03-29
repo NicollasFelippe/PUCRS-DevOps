@@ -1,40 +1,39 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Infraestrutura para site estático no S3'
+Description: 'Fase 2: Infraestrutura para site estático com container em EC2'
 
 Resources:
-  # 1. Criação do Bucket S3
-  MeuBucketDeSite:
-    Type: AWS::S3::Bucket
+  # Grupo de Segurança
+  AcessoWebSG:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      BucketName: nicollas-santos-pucrs-devops
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        BlockPublicPolicy: false
-        IgnorePublicAcls: false
-        RestrictPublicBuckets: false
-      WebsiteConfiguration:
-        IndexDocument: index.html
+      GroupDescription: Permite acesso HTTP publico na porta 80
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
 
-  # 2. Regra de Permissão (Bucket Policy)
-  PermissaoDeLeituraPublica:
-    Type: AWS::S3::BucketPolicy
+  # O Servidor EC2
+  ServidorWeb:
+    Type: AWS::EC2::Instance
     Properties:
-      Bucket: !Ref MeuBucketDeSite
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal: '*'
-            Action: 's3:GetObject'
-            Resource: !Sub 'arn:aws:s3:::${MeuBucketDeSite}/*'
+      InstanceType: t2.micro # Instância elegível no AWS Academy
+      # Pega a versão mais atualizada e segura do Amazon Linux 2023 automaticamente
+      ImageId: '{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64}}'
+      SecurityGroupIds:
+        - !Ref AcessoWebSG
+      
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y docker
+          systemctl start docker
+          systemctl enable docker
+          docker run -d -p 80:80 nicollasfs/devops-pucrs-nicollas:latest
 
 Outputs:
-  WebsiteURL:
-    Description: 'URL do site estático'
-    Value: !GetAtt MeuBucketDeSite.WebsiteURL
-    Export:
-      Name: !Sub '${AWS::StackName}-WebsiteURL'
-
-  BucketName:
-    Description: 'Nome do bucket S3'
-    Value: !Ref MeuBucketDeSite
+  URLdoSite:
+    Description: 'Acessa o site em container por este link'
+    # Retorna o DNS público gerado pela AWS para a sua máquina
+    Value: !Sub 'http://${ServidorWeb.PublicDnsName}'
